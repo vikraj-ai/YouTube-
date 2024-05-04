@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YouTube Video Search</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f8f9fa;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 50px auto;
+      text-align: center;
+    }
+
+    input[type="text"] {
+      width: 60%;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+
+    #results {
+      margin-top: 20px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .video-card {
+      width: calc(99.33% - 20px);
+      margin: 10px;
+      background-color: #fff;
+      border-radius: 5px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+      cursor: pointer;
+    }
+
+    .video-thumbnail {
+      width: 100%;
+      height: auto;
+    }
+
+    .video-info {
+      padding: 10px;
+    }
+
+    .video-title {
+      margin-top: 0;
+      margin-bottom: 5px;
+      font-size: 16px;
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Search for YouTube Videos</h1>
+    <input type="text" id="searchInput" placeholder="Enter search query...">
+    <input type="text" id="channelInput" placeholder="Enter educational channel name...">
+    <button onclick="fetchEducationalVideos()">Fetch Videos</button>
+    <div id="results"></div>
+    <div id="player"></div>
+  </div>
+  <script>
+    const API_KEY = 'AIzaSyCv4OTTp-zHuWvRAbUti3uvSludk0j2fLw';
+    let nextPageToken = '';
+
+    function fetchEducationalVideos() {
+      const channelName = document.getElementById('channelInput').value.trim();
+      const query = document.getElementById('searchInput').value.trim();
+      const defaultQuery = 'educational videos of class 10';
+      const finalQuery = query === '' ? defaultQuery : query;
+
+      let apiUrl = `https://www.googleapis.com/youtube/v3/search?key=${API_KEY}&type=video&part=snippet&q=${finalQuery}&channel=${channelName}&maxResults=5&videoDuration=long`;
+
+      if (nextPageToken) {
+        apiUrl += `&pageToken=${nextPageToken}`;
+      }
+
+      fetch(apiUrl)
+        .then(response => response.json())
+        .then(data => {
+          const resultsContainer = document.getElementById('results');
+          if (!nextPageToken) {
+            resultsContainer.innerHTML = '';
+          }
+
+          if (data.items) {
+            data.items.forEach(item => {
+              const videoTitle = item.snippet.title;
+              const videoId = item.id.videoId;
+              const videoThumbnail = item.snippet.thumbnails.default.url;
+
+              const videoCard = document.createElement('div');
+              videoCard.classList.add('video-card');
+              videoCard.innerHTML = `
+                <img class="video-thumbnail" src="${videoThumbnail}" alt="${videoTitle}" onclick="playVideo('${videoId}')">
+                <div class="video-info">
+                  <h3 class="video-title">${videoTitle}</h3>
+                </div>
+              `;
+              resultsContainer.appendChild(videoCard);
+            });
+          } else {
+            resultsContainer.innerHTML = '<p>No videos found.</p>';
+          }
+
+          nextPageToken = data.nextPageToken;
+        })
+        .catch(error => {
+          console.error('Error fetching educational videos:', error);
+        });
+    }
+
+    function playVideo(videoId) {
+      window.location.href = `video.html?id=${videoId}`;
+    }
+
+    window.addEventListener('scroll', () => {
+      const { scrollTop, clientHeight, scrollHeight } = document.documentElement;
+      if (scrollTop + clientHeight >= scrollHeight - 5) {
+        fetchEducationalVideos();
+      }
+    });
+
+    window.onload = function() {
+      fetchEducationalVideos();
+    };
+  </script>
+</body>
+</html>
+

@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>YouTube Video Search</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+      <link rel="manifest" href="manifest.json" />
+  
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -22,8 +24,9 @@
     #searchIcon {
       font-size: 24px;
       color: #000000;
-     left:100px; 
-     top:50px;
+     
+    margin-top:50px;
+    margin-left: 300px;
     }
 
     #results {
@@ -58,12 +61,16 @@
       font-size: 16px;
       color: #333;
     }
+ 
   </style>
 </head>
 <body>
+    <a href="search.html"><i class="fas fa-search" id="searchIcon"></i></a>
+    
+    <h2>Ed Tube</h2>
   <div class="container">
     
-    <a href="search.html"><i class="fas fa-search" id="searchIcon"></i></a>
+   
     <div id="results"></div>
     <div id="player"></div>
   </div>

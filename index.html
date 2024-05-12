@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>YouTube Video Search</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -18,10 +19,11 @@
       text-align: center;
     }
 
-    input[type="text"] {
-      width: 60%;
-      padding: 10px;
-      margin-bottom: 10px;
+    #searchIcon {
+      font-size: 24px;
+      color: #000000;
+     left:100px; 
+     top:50px;
     }
 
     #results {
@@ -60,15 +62,16 @@
 </head>
 <body>
   <div class="container">
-    <h1>Search for YouTube Videos</h1>
-    <input type="text" id="searchInput" placeholder="Enter search query...">
-    <input type="text" id="channelInput" placeholder="Enter educational channel name...">
-    <button onclick="fetchEducationalVideos()">Fetch Videos</button>
+    
+    <a href="search.html"><i class="fas fa-search" id="searchIcon"></i></a>
     <div id="results"></div>
     <div id="player"></div>
   </div>
+  <input type="hidden" id="channelInput" placeholder="Channel Name">
+  <input type="hidden" id="searchInput" placeholder="Search Query">
   <script>
-    const API_KEY = 'AIzaSyCv4OTTp-zHuWvRAbUti3uvSludk0j2fLw';
+    const API_KEYS = ['AIzaSyA_-URlC2BsBMBCixQ8s5aWNR2efBgTgOA', 'SECOND_API_KEY'];
+    let apiKeyIndex = 0;
     let nextPageToken = '';
 
     function fetchEducationalVideos() {
@@ -77,14 +80,20 @@
       const defaultQuery = 'educational videos of class 10';
       const finalQuery = query === '' ? defaultQuery : query;
 
-      let apiUrl = `https://www.googleapis.com/youtube/v3/search?key=${API_KEY}&type=video&part=snippet&q=${finalQuery}&channel=${channelName}&maxResults=5&videoDuration=long`;
+      let apiUrl = `https://www.googleapis.com/youtube/v3/search?key=${API_KEYS[apiKeyIndex]}&type=video&part=snippet&q=${finalQuery}&channel=${channelName}&maxResults=5&videoDuration=long`;
 
       if (nextPageToken) {
         apiUrl += `&pageToken=${nextPageToken}`;
       }
 
       fetch(apiUrl)
-        .then(response => response.json())
+        .then(response => {
+          if (!response.ok && response.status === 403 && apiKeyIndex < API_KEYS.length - 1) {
+            apiKeyIndex++;
+            return fetchEducationalVideos();
+          }
+          return response.json();
+        })
         .then(data => {
           const resultsContainer = document.getElementById('results');
           if (!nextPageToken) {
@@ -95,7 +104,8 @@
             data.items.forEach(item => {
               const videoTitle = item.snippet.title;
               const videoId = item.id.videoId;
-              const videoThumbnail = item.snippet.thumbnails.default.url;
+              const videoThumbnail = item.snippet.thumbnails.high.url;
+              const channelName = item.snippet.channelTitle;
 
               const videoCard = document.createElement('div');
               videoCard.classList.add('video-card');
@@ -135,4 +145,3 @@
   </script>
 </body>
 </html>
-

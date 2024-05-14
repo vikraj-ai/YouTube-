@@ -5,8 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>YouTube Video Search</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-      <link rel="manifest" href="manifest.json" />
-  
+    
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -23,20 +22,21 @@
 
     #searchIcon {
       font-size: 24px;
+      font-weight: 7px;
       color: #000000;
-     
-    margin-top:50px;
-    margin-left: 300px;
+      margin-top: 30px;
+      margin-left: 300px;
     }
 
     #results {
-      margin-top: 20px;
+      margin-top: 100px;
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
     }
 
-    .video-card {
+    
+.video-card {
       width: calc(99.33% - 20px);
       margin: 10px;
       background-color: #fff;
@@ -44,8 +44,11 @@
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
       overflow: hidden;
       cursor: pointer;
-    }
-
+      z-index: 10;
+    
+   box-shadow: 0 0 10px 3px #FF7474;
+    
+}
     .video-thumbnail {
       width: 100%;
       height: auto;
@@ -61,33 +64,82 @@
       font-size: 16px;
       color: #333;
     }
- 
+
+    .logo {
+      width: 70px;
+      height: 70px;
+      margin-left: 10px;
+      margin-top: -95px;
+      border-radius: 100%;
+      box-shadow: 0 0 10px 3px rgba(0, 0, 0, 0.5);
+      z-index: 100000;
+      position: fixed;
+    }
+
+    .sticky {
+      background-color: #FF1010;
+      height: 80px;
+      position: fixed;
+      left: 0px;
+      top: 0px;
+      width: 100%;
+      z-index: 1000;
+      box-shadow: 0 0 10px 3px #FF7474;
+    }
+
+    p {
+      margin-top: -30px;
+      margin-left: 90px;
+      font-weight: 50px;
+    }
   </style>
 </head>
 <body>
-    <a href="search.html"><i class="fas fa-search" id="searchIcon"></i></a>
-    
-    <h2>Ed Tube</h2>
-  <div class="container">
-    
    
+  <img src="download.jpg" alt="Web Developer Image" class="logo">   
+  <section class="header">
+    <div class="sticky">
+      <a href="search.html"><i class="fas fa-search" id="searchIcon"></i></a>
+      <p>Ed Tube</p>
+    </div>
+  </section>
+  
+  <div class="container">
     <div id="results"></div>
     <div id="player"></div>
   </div>
+  
   <input type="hidden" id="channelInput" placeholder="Channel Name">
   <input type="hidden" id="searchInput" placeholder="Search Query">
+  
   <script>
-    const API_KEYS = ['AIzaSyA_-URlC2BsBMBCixQ8s5aWNR2efBgTgOA', 'SECOND_API_KEY'];
+    const API_KEYS = ['AIzaSyA_-URlC2BsBMBCixQ8s5aWNR2efBgTgOA', 'AIzaSyBpV-5uzBfmL_JkCohsCWtCL_rE94Kj0pI','AIzaSyA-lAzwcb8aFBrJCYvfzPCUlWNhk3oFhwo','AIzaSyAQ0FWsp_Y6FAiXtbWb5c4yYKcT4F7GPo0','AIzaSyBkmds_4nSyGzTpUSgvU8TZ8mxTc51MQ9g','AIzaSyDZkrFG_XDpogWAbo_U7aYN2tnKk7tXUSo'];
     let apiKeyIndex = 0;
     let nextPageToken = '';
+    
+    const queryTerms = [
+      'educational videos of class 10',
+      'learning tutorials',
+      'online courses',
+      'educational channels',
+      'tutorial videos',
+      
+      // Add more query terms as needed
+    ];
+
+    function getRandomQuery() {
+      const randomIndex = Math.floor(Math.random() * queryTerms.length);
+      return queryTerms[randomIndex];
+    }
 
     function fetchEducationalVideos() {
       const channelName = document.getElementById('channelInput').value.trim();
       const query = document.getElementById('searchInput').value.trim();
       const defaultQuery = 'educational videos of class 10';
       const finalQuery = query === '' ? defaultQuery : query;
-
-      let apiUrl = `https://www.googleapis.com/youtube/v3/search?key=${API_KEYS[apiKeyIndex]}&type=video&part=snippet&q=${finalQuery}&channel=${channelName}&maxResults=5&videoDuration=long`;
+      const Query = getRandomQuery();
+    
+      let apiUrl = `https://www.googleapis.com/youtube/v3/search?key=${API_KEYS[apiKeyIndex]}&type=video&part=snippet&q=${Query}&channel=${channelName}&maxResults=5&videoDuration=long&pageToken=${nextPageToken}`;
 
       if (nextPageToken) {
         apiUrl += `&pageToken=${nextPageToken}`;
@@ -107,48 +159,47 @@
             resultsContainer.innerHTML = '';
           }
 
-          if (data.items) {
+                   if (data.items) {
             data.items.forEach(item => {
-              const videoTitle = item.snippet.title;
-              const videoId = item.id.videoId;
-              const videoThumbnail = item.snippet.thumbnails.high.url;
-              const channelName = item.snippet.channelTitle;
-
-              const videoCard = document.createElement('div');
-              videoCard.classList.add('video-card');
-              videoCard.innerHTML = `
-                <img class="video-thumbnail" src="${videoThumbnail}" alt="${videoTitle}" onclick="playVideo('${videoId}')">
-                <div class="video-info">
-                  <h3 class="video-title">${videoTitle}</h3>
-                </div>
-              `;
-              resultsContainer.appendChild(videoCard);
+               const videoTitle = item.snippet.title;
+               const videoId = item.id.videoId;
+               const videoThumbnail = item.snippet.thumbnails.medium.url;
+         
+               const videoCard = document.createElement('div');
+               videoCard.classList.add('video-card');
+               videoCard.innerHTML = `
+                         <img class="video-thumbnail" src="${videoThumbnail}" alt="${videoTitle}" onclick="playVideo('${videoId}')">
+                         <div class="video-info">
+                           <h3 class="video-title">${videoTitle}</h3>
+                         </div>
+                       `;
+               resultsContainer.appendChild(videoCard);
             });
-          } else {
+         } else {
             resultsContainer.innerHTML = '<p>No videos found.</p>';
-          }
-
-          nextPageToken = data.nextPageToken;
-        })
-        .catch(error => {
-          console.error('Error fetching educational videos:', error);
-        });
-    }
-
-    function playVideo(videoId) {
-      window.location.href = `video.html?id=${videoId}`;
-    }
-
+         }
+         })
+         .catch(error => {
+            console.error('Error searching videos:', error);
+         });
+         }
+         
+         function playVideo(videoId) {
+            window.location.href = `video.html?id=${videoId}`;
+         }
     window.addEventListener('scroll', () => {
-      const { scrollTop, clientHeight, scrollHeight } = document.documentElement;
-      if (scrollTop + clientHeight >= scrollHeight - 5) {
-        fetchEducationalVideos();
-      }
-    });
+       const { scrollTop, clientHeight, scrollHeight } = document.documentElement;
+if (scrollTop + clientHeight >= scrollHeight - 5) {
+  fetchEducationalVideos();
+}
+});
 
-    window.onload = function() {
-      fetchEducationalVideos();
-    };
+window.onload = function() {
+  fetchEducationalVideos();
+};
   </script>
 </body>
 </html>
+
+
+
